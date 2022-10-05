@@ -1,20 +1,19 @@
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-public class Queue<Item> implements Iterable<Item>{
+
+public class Stack<Item> implements Iterable<Item> {
 
     private Node<Item> first;
-    private Node<Item> last;
-    private int N;
+    private int n;
 
     private static class Node<Item>{
         private Item item;
         private Node<Item> next;
     }
 
-    public Queue(){
+    public Stack(){
         first = null;
-        last = null;
-        N = 0;
+        n = 0;
     }
 
     public boolean isEmpty(){
@@ -22,43 +21,39 @@ public class Queue<Item> implements Iterable<Item>{
     }
 
     public int size(){
-        return N;
+        return n;
+    }
+
+    public void push(Item item){
+        Node<Item> oldFirst = first;
+        first = new Node<Item>();
+        first.item = item;
+        first.next = oldFirst;
+        n++;
+    }
+
+    public Item pop(){
+        if(isEmpty()) throw new NoSuchElementException("Stack underflow");
+        Item item = first.item;
+        first = first.next;
+        n--;
+        return item;
     }
 
     public Item peek(){
-        if(isEmpty()) throw new NoSuchElementException();
+        if(isEmpty()) throw new NoSuchElementException("Stack underflow");
         return first.item;
-    }
-
-    public void enqueue(Item item){
-        Node<Item> oldLast = last;
-        last = new Node<Item>();
-        last.item = item;
-        last.next = null;
-        if(isEmpty()) first = last;
-        else oldLast.next = last;
-        N++;
-    }
-
-    public Item dequeue(){
-        if(isEmpty()) throw new NoSuchElementException("Queue underflow");
-        Item item = first.item;
-        first = first.next;
-        N--;
-        if(isEmpty()) last = null;
-        return item;
     }
 
     public String toString(){
         StringBuilder s = new StringBuilder();
-        for(Item item: this){
+        for(Item item : this){
             s.append(item + " ");
         }
         return s.toString();
     }
 
-    @Override
-    public Iterator<Item> iterator() {
+    public Iterator<Item> iterator(){
         return new ListIterator<Item>(first);
     }
 
@@ -67,10 +62,12 @@ public class Queue<Item> implements Iterable<Item>{
         public ListIterator(Node<Item> first){
             current = first;
         }
-
-        public boolean hasNext(){return current != null;}
-        public void remove(){throw new UnsupportedOperationException();}
-
+        public boolean hasNext(){
+            return current != null;
+        }
+        public void remove(){
+            throw new UnsupportedOperationException();
+        }
         public Item next(){
             if(!hasNext()) throw new NoSuchElementException();
             Item item = current.item;
@@ -80,12 +77,16 @@ public class Queue<Item> implements Iterable<Item>{
     }
 
     public static void main(String[] args) {
-        Queue<String> q =  new Queue<String>();
+        Stack<String> stack = new Stack<String>();
         while (!StdIn.isEmpty()){
             String item = StdIn.readString();
-            if(!item.equals("-")) q.enqueue(item);
-            else if(!q.isEmpty()) StdOut.print(q.dequeue() + " ");
+            if(!item.equals("-"))
+                stack.push(item);
+            else if(!stack.isEmpty())
+                StdOut.print(stack.pop() + " ");
         }
-        StdOut.println("(" + q.size() + " left on queue");
+        StdOut.println("(" + stack.size() + " left on stack)");
     }
+
+
 }
