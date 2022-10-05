@@ -1,16 +1,12 @@
-package org.ufpb.levi.codigos;
-
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
-
 public class Queue<Item> implements Iterable<Item>{
-    //Primeiro item da fila
-    private Node<Item> first;
-    //Ultimo elemento da fila
-    private Node<Item> last;
-    //Tamanho da fila;
-    private int N;
 
+    private Node<Item> first;
+    private Node<Item> last;
+    private int N;
 
     private static class Node<Item>{
         private Item item;
@@ -32,48 +28,66 @@ public class Queue<Item> implements Iterable<Item>{
     }
 
     public Item peek(){
-        if(isEmpty())
-            throw new NoSuchElementException("Queue Underflow!");
+        if(isEmpty()) throw new NoSuchElementException();
         return first.item;
     }
 
-    //Enfilera um elemento, o colocando no final da fila
     public void enqueue(Item item){
-        //antigo último recebe o último
         Node<Item> oldLast = last;
-        //O último elemento se torna agora o novo passado como parâmetro
         last = new Node<Item>();
         last.item = item;
-        //O último elemento aponta para null, pois não existe mais nenhum elemento da fila
         last.next = null;
-        //Se o item for o primeiro da fila, o primeiro também será o último
-        if(isEmpty())
-            first = last;
-        //Se não, o antigo ultimo da fila vai apontar para o último.
-        else{
-            oldLast.next = last;
-            N++;
-        }
+        if(isEmpty()) first = last;
+        else oldLast.next = last;
+        N++;
     }
 
-    //Desenfilera um elemento, o removendo do início
     public Item dequeue(){
-        if(isEmpty())
-            throw new NoSuchElementException("Queue underflow");
-
+        if(isEmpty()) throw new NoSuchElementException("Queue underflow");
         Item item = first.item;
         first = first.next;
         N--;
-
-        if(isEmpty())
-            last = null;
-
+        if(isEmpty()) last = null;
         return item;
     }
 
-    @Override
     public String toString(){
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder();
+        for(Item item: this){
+            s.append(item + " ");
+        }
+        return s.toString();
+    }
 
+    @Override
+    public Iterator<Item> iterator() {
+        return new ListIterator<Item>(first);
+    }
+
+    private class ListIterator<Item> implements Iterator<Item>{
+        private Node<Item> current;
+        public ListIterator(Node<Item> first){
+            current = first;
+        }
+
+        public boolean hasNext(){return current != null;}
+        public void remove(){throw new UnsupportedOperationException();}
+
+        public Item next(){
+            if(!hasNext()) throw new NoSuchElementException();
+            Item item = current.item;
+            current = current.next;
+            return item;
+        }
+    }
+
+    public static void main(String[] args) {
+        Queue<String> q =  new Queue<String>();
+        while (!StdIn.isEmpty()){
+            String item = StdIn.readString();
+            if(!item.equals("-")) q.enqueue(item);
+            else if(!q.isEmpty()) StdOut.print(q.dequeue() + " ");
+        }
+        StdOut.println("(" + q.size() + " left on queue");
     }
 }
